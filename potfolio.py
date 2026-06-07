@@ -1,6 +1,7 @@
 import requests as r
 from bs4 import BeautifulSoup
 from dataclasses import dataclass
+from tabulate import tabulate
 
 @dataclass
 class Stock:
@@ -52,6 +53,24 @@ def get_price_information(ticker,exchange):
 
     }
 
+
+def display_portfolio_summary(portfolio:Portfolio):
+    portfolio_value=portfolio.get_total_value()
+    position_data=[]
+    for position in portfolio.positions:
+        position_data.append([position.stock.ticker,
+                              position.stock.exchange,
+                              position.stock.price,
+                              position.quantity,
+                              position.stock.usd_price,
+                              position.stock.usd_price*position.quantity,
+                              position.stock.usd_price * position.quantity/ portfolio_value*100 ])
+    print(tabulate(position_data,tablefmt="fancy_grid",
+                   headers=["ticker","exchange","quantity","price","market_value","% allocation"]
+                   ,floatfmt=".2f"))
+    print(f"Total Value:{portfolio_value:,.2f}.")
+
+
 if __name__=="__main__":
    #print( get_price_information("MSFT","NASDAQ"))
    #print(Stock("MSFT","NASDAQ"))
@@ -59,7 +78,8 @@ if __name__=="__main__":
    google = Stock("GOOGL", "NASDAQ")
    shoppy = Stock("SHOP", "TSE")
    portfolio=Portfolio([Position(microsoft,2),Position(google,5),Position(shoppy,10)])
-   print(portfolio.get_total_value())
+   #print(portfolio.get_total_value())
+   display_portfolio_summary(portfolio)
 
 
 
